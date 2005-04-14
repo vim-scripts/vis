@@ -1,7 +1,7 @@
 " vis.vim:
 " Function:	Perform an Ex command on a visual highlighted block (CTRL-V).
-" Version:	15
-" Date:		Feb 01, 2005
+" Version:	16
+" Date:		Apr 14, 2005
 " GetLatestVimScripts: 1066 1 cecutil.vim
 " GetLatestVimScripts: 1195 1 :AutoInstall: vis.vim
 
@@ -29,30 +29,31 @@
 "
 " ------------------------------------------------------------------------------
 " Initialization: {{{1
-
 " Exit quickly when <Vis.vim> has already been loaded or
 " when 'compatible' is set
 if &cp || exists("g:loaded_vis")
   finish
 endif
-let g:loaded_vis= "v15"
+let s:keepcpo    = &cpo
+let g:loaded_vis = "v16"
+set cpo&vim
 
 " ------------------------------------------------------------------------------
 " Public Interface: {{{1
 "  -range       : VisBlockCmd operates on the range itself
 "  -com=command : Ex command and arguments
 "  -nargs=+     : arguments may be supplied, up to any quantity
-com! -range -nargs=+ -com=command    B  silent <line1>,<line2>call s:VisBlockCmd('<args>')
-"com! -range -nargs=+ -com=expression R  silent <line1>,<line2>call s:VisBlockSearch('<args>','b')
-com! -range -nargs=* -com=expression S  silent <line1>,<line2>call s:VisBlockSearch('<args>')
+com! -range -nargs=+ -com=command    B  silent <line1>,<line2>call s:VisBlockCmd(<q-args>)
+com! -range -nargs=* -com=expression S  silent <line1>,<line2>call s:VisBlockSearch(<q-args>)
 
-" Suggested by Hari
-" Visual-mode restricted searches
-vn / <esc>/<c-r>=<SID>VisBlockSearch()<cr>
-vn ? <esc>?<c-r>=<SID>VisBlockSearch()<cr>
+" Suggested by Hari --
+vn // <esc>/<c-r>=<SID>VisBlockSearch()<cr>
+vn ?? <esc>?<c-r>=<SID>VisBlockSearch()<cr>
 
+" ---------------------------------------------------------------------
+"  Support Functions: {{{1
 " ------------------------------------------------------------------------------
-" VisBlockCmd: {{{1
+" VisBlockCmd: {{{2
 fun! <SID>VisBlockCmd(cmd) range
 "  call Dfunc("VisBlockCmd(cmd<".a:cmd.">")
 
@@ -172,12 +173,16 @@ fun! <SID>VisBlockCmd(cmd) range
 endfun
 
 " ------------------------------------------------------------------------------
-" VisBlockSearch: {{{1
+" VisBlockSearch: {{{2
 fun! <SID>VisBlockSearch(...) range
 "  call Dfunc("VisBlockSearch() a:0=".a:0." lines[".a:firstline.",".a:lastline."]")
-  if a:0 >= 1
+  let keepic= &ic
+  set noic
+
+  if a:0 >= 1 && strlen(a:1) > 0
    let pattern   = a:1
    let s:pattern = pattern
+"   call Decho("a:0=".a:0.": pattern<".pattern.">")
   elseif exists("s:pattern")
    let pattern= s:pattern
   else
@@ -227,10 +232,14 @@ fun! <SID>VisBlockSearch(...) range
    let srch= '\%(\%>'.firstlinem1.'l\%<'.lastlinep1.'l\)\&'
 "   call Decho("V  srch: ".srch)
   elseif vmode == 'v'
-   let srch= '\%(\%(\%'.firstline.'l\%>'.firstcolm1.'v\)\|\%(\%'.lastline.'l\%<'.lastcolp1.'v\)\|\%(\%>'.firstline.'l\%<'.lastline.'l\)\)\&'
+   if firstline == lastline || firstline == lastlinep1
+   	let srch= '\%(\%'.firstline.'l\%>'.firstcolm1.'v\%<'.lastcolp1.'v\)\&'
+   else
+    let srch= '\%(\%(\%'.firstline.'l\%>'.firstcolm1.'v\)\|\%(\%'.lastline.'l\%<'.lastcolp1.'v\)\|\%(\%>'.firstline.'l\%<'.lastline.'l\)\)\&'
+   endif
 "   call Decho("v  srch: ".srch)
   else
-   let srch= '\%(\%>'.firstline.'l\%>'.firstcolm1.'v\%<'.lastlinep1.'l\%<'.lastcolp1.'v\)\&'
+   let srch= '\%(\%>'.firstlinem1.'l\%>'.firstcolm1.'v\%<'.lastlinep1.'l\%<'.lastcolp1.'v\)\&'
 "   call Decho("^v srch: ".srch)
   endif
 
@@ -239,21 +248,22 @@ fun! <SID>VisBlockSearch(...) range
 "   call Decho("Search forward: <".srch.pattern.">")
    call search(srch.pattern)
    let @/= srch.pattern
-"   call Dret("VisBlockSearch")
 
   elseif a:0 == 2
 "   call Decho("Search backward: <".srch.pattern.">")
    call search(srch.pattern,a:2)
    let @/= srch.pattern
-  else
-"   call Dret("VisBlockSearch <".srch.">")
-   return srch
   endif
 
+  " restore ignorecase
+  let &ic= keepic
+
+"  call Dret("VisBlockSearch <".srch.">")
+  return srch
 endfun
 
 " ------------------------------------------------------------------------------
-" VirtcolM1: usually a virtcol(mark)-1, but due to tabs this can be different {{{1
+" VirtcolM1: usually a virtcol(mark)-1, but due to tabs this can be different {{{2
 fun! s:VirtcolM1(mark)
 "  call Dfunc("VirtcolM1(mark ".a:mark.")")
   let mark="'".a:mark
@@ -269,7 +279,10 @@ fun! s:VirtcolM1(mark)
   return virtcol(".")
 endfun
 
+let &cpo= s:keepcpo
+unlet s:keepcpo
 " ------------------------------------------------------------------------------
+"  Modelines: {{{1
 " vim: fdm=marker
 " HelpExtractor:
 "  Author:	Charles E. Campbell, Jr.
@@ -283,6 +296,8 @@ endfun
 " GetLatestVimScripts: 748 1 HelpExtractor.vim
 " ---------------------------------------------------------------------
 set lz
+let s:keepcpo= &cpo
+set cpo&vim
 let docdir = substitute(expand("<sfile>:r").".txt",'\<plugin[/\\].*$','doc','')
 if !isdirectory(docdir)
  if has("win32")
@@ -315,12 +330,14 @@ set nolz
 unlet docdir
 unlet curfile
 "unlet docfile
+let &cpo= s:keepcpo
+unlet s:keepcpo
 finish
 
 " ---------------------------------------------------------------------
 " Put the help after the HelpExtractorDoc label...
 " HelpExtractorDoc:
-*vis.txt*	The Visual Block Tool				Jan 31, 2005
+*vis.txt*	The Visual Block Tool				Mar 01, 2005
 
 Author:  Charles E. Campbell, Jr.  <NdrchipO@ScampbellPfamily.AbizM>
 	  (remove NOSPAM from Campbell's email first)
@@ -423,6 +440,14 @@ Author:  Charles E. Campbell, Jr.  <NdrchipO@ScampbellPfamily.AbizM>
 
 5. History							*vis-history*
 
+    v16 : Feb 02, 2005  - fixed a bug with visual-block + S ; the first line
+			  was being omitted in the search
+	  Mar 01, 2005  - <q-args> used instead of '<args>'
+	  Apr 13, 2005  - :'<,'>S plus v had a bug with one or two line
+	                  selections (tnx to Vigil for pointing this out)
+	  Apr 14, 2005  - set ignorecase caused visual-block searching
+	                  to confuse visual modes "v" and "V"
+    v15 : Feb 01, 2005  - includes some additions to the help
     v14 : Sep 28, 2004	- visual-block based searching now supported.  One
 			  do this either with :'<,'>S pattern or with a / or ?
 	  Jan 31, 2005  - fixed help file
