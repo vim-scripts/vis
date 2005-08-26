@@ -1,9 +1,12 @@
 " vis.vim:
 " Function:	Perform an Ex command on a visual highlighted block (CTRL-V).
-" Version:	17
-" Date:		Apr 25, 2005
+" Version:	18
+" Date:		Aug 26, 2005
 " GetLatestVimScripts: 1066 1 cecutil.vim
 " GetLatestVimScripts: 1195 1 :AutoInstall: vis.vim
+" Verse: For am I now seeking the favor of men, or of God? Or am I striving
+" to please men? For if I were still pleasing men, I wouldn't be a servant
+" of Christ. (Gal 1:10, WEB)
 
 " ---------------------------------------------------------------------
 "  Details: {{{1
@@ -35,7 +38,7 @@ if &cp || exists("g:loaded_vis")
   finish
 endif
 let s:keepcpo    = &cpo
-let g:loaded_vis = "v17"
+let g:loaded_vis = "v18"
 set cpo&vim
 
 " ------------------------------------------------------------------------------
@@ -266,17 +269,28 @@ endfun
 " VirtcolM1: usually a virtcol(mark)-1, but due to tabs this can be different {{{2
 fun! s:VirtcolM1(mark)
 "  call Dfunc("VirtcolM1(mark ".a:mark.")")
-  let mark="'".a:mark
+  let mark   = "'".a:mark
 
   if virtcol(mark) <= 1
 "   call Dret("VirtcolM1 0")
    return 0
   endif
+
+  if &ve == "block"
+   " works around a ve=all vs ve=block difference with virtcol()
+   set ve=all
+"   call Decho("temporarily setting ve=all")
+  endif
+
 "  call Decho("exe norm! `".a:mark."h")
   exe "norm! `".a:mark."h"
 
-"  call Dret("VirtcolM1 ".virtcol("."))
-  return virtcol(".")
+  let vekeep = &ve
+  let vc  = virtcol(".")
+  let &ve = vekeep
+
+"  call Dret("VirtcolM1 ".vc)
+  return vc
 endfun
 
 let &cpo= s:keepcpo

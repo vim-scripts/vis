@@ -1,7 +1,11 @@
-*vis.txt*	The Visual Block Tool				Apr 25, 2005
+*vis.txt*	The Visual Block Tool				Jul 11, 2005
 
 Author:  Charles E. Campbell, Jr.  <NdrchipO@ScampbellPfamily.AbizM>
 	  (remove NOSPAM from Campbell's email first)
+Copyright: (c) 2004-2005 by Charles E. Campbell, Jr.	*vis-copyright*
+           The VIM LICENSE applies to vis.vim and vis.txt
+           (see |copyright|) except use "vis" instead of "Vim"
+	   No warranty, express or implied.  Use At-Your-Own-Risk.
 
 ==============================================================================
 1. Contents						*vis* *vis-contents*
@@ -94,13 +98,15 @@ Author:  Charles E. Campbell, Jr.  <NdrchipO@ScampbellPfamily.AbizM>
 	the SaveWinPosn() and RestoreWinPosn() functions therein.  You may get
 	<cecutil.vim> from
 
-   		http://mysite.verizon.net/astronaut/vim/index.html#VimFuncs
-   		as "DrC's Utilities".
+		http://mysite.verizon.net/astronaut/vim/index.html#VimFuncs
+		as "DrC's Utilities".
 
 ==============================================================================
 
 5. History							*vis-history*
 
+    v18 : Jul 11, 2005  - vis.vim now works around a virtcol() behavior
+                          difference between ve=all vs ve=block
     v17 : Apr 25, 2005  - vis.vim now uses cecutil (SaveWinPosn, etc) so the
                           tarball now includes a copy of cecutil.vim
     v16 : Feb 02, 2005  - fixed a bug with visual-block + S ; the first line
