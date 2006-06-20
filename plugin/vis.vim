@@ -1,7 +1,7 @@
 " vis.vim:
 " Function:	Perform an Ex command on a visual highlighted block (CTRL-V).
-" Version:	18
-" Date:		Aug 26, 2005
+" Version:	19
+" Date:		Jun 20, 2006
 " GetLatestVimScripts: 1066 1 cecutil.vim
 " GetLatestVimScripts: 1195 1 :AutoInstall: vis.vim
 " Verse: For am I now seeking the favor of men, or of God? Or am I striving
@@ -38,7 +38,7 @@ if &cp || exists("g:loaded_vis")
   finish
 endif
 let s:keepcpo    = &cpo
-let g:loaded_vis = "v18"
+let g:loaded_vis = "v19"
 set cpo&vim
 
 " ------------------------------------------------------------------------------
@@ -62,13 +62,14 @@ fun! <SID>VisBlockCmd(cmd) range
 
   " retain and re-use same visual mode
   norm `<
-  let curposn = SaveWinPosn()
+  let curposn = SaveWinPosn(0)
   let vmode   = visualmode()
 "  call Decho("vmode<".vmode.">")
 
   " save options which otherwise may interfere
   let keep_lz    = &lz
   let keep_fen   = &fen
+  let keep_fo    = &fo
   let keep_ic    = &ic
   let keep_magic = &magic
   let keep_sol   = &sol
@@ -81,6 +82,7 @@ fun! <SID>VisBlockCmd(cmd) range
   set nosol
   set ve=
   set ww=
+  set fo=nroql2
 
   " Save any contents in register a
   let rega= @a
@@ -125,8 +127,11 @@ fun! <SID>VisBlockCmd(cmd) range
 "   call Decho("reg-A<".@a.">")
 
    " 3. apply command to those lines
-"   call Decho("apply command to those lines")
-   exe '.,$'.a:cmd
+   let curline = line(".")
+   ka
+   $
+"   call Decho("apply command<".a:cmd."> to those lines (curline=".line(".").")")
+   exe curline.',$'.a:cmd
 
    " 4. visual-block select the modified text in those lines
 "   call Decho("visual-block select modified text at end-of-file")
@@ -141,11 +146,11 @@ fun! <SID>VisBlockCmd(cmd) range
 "   call Decho("put modifed text back into file (beginning=".begline.".".begcol.")")
    exe begline
    if begcol > 1
-    exe 'norm! '.begcol."\<bar>\"ap"
+	exe 'norm! '.begcol."\<bar>\"ap"
    elseif begcol == 1
-    norm! 0"ap
+	norm! 0"ap
    else
-    norm! 0"aP
+	norm! 0"aP
    endif
 
    " 7. attempt to restore gv -- this is limited, it will
@@ -166,6 +171,7 @@ fun! <SID>VisBlockCmd(cmd) range
   let @a  = rega
   let &lz = keep_lz
   let &fen= keep_fen
+  let &fo = keep_fo
   let &ic = keep_ic
   let &sol= keep_sol
   let &ve = keep_ve
