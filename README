@@ -1,6 +1,6 @@
 This is a mirror of http://www.vim.org/scripts/script.php?script_id=1195
 
-I'm hereby making the <vis.vim> script, long available at http://mysite.verizon.net/astronaut/vim/index.html#VIS, also available here at vim.sf.net.  There are two commands made available: B and S.
+I'm hereby making the <vis.vim> script, long available at http://www.drchip.org/astronaut/vim/index.html#VIS, also available here at vim.sf.net.  There are two commands made available: B and S.
 
 
 ----------------
@@ -18,7 +18,7 @@ Visual Commands:
       Use ctrl-v to select a column and then do a substitute on just that column.  
       ctrl-v ..move.. :B s/pattern/becomes/
     
-      Use ctrl-v to select a column, then apply an external filter to that column.
+      Use ctrl-v to select a column, then apply an external filter to just that column.
       ctrl-v ..move.. :B !sort
 
 
@@ -47,5 +47,5 @@ Related Subjects:
  * For more on applying substitutes to a visual block: see vimtip#63
  * For swapping pairs of visual blocks: see vimtip#329
 
-(alpha/beta version available at http://mysite.verizon.net/astronaut/vim/index.html#VIS)
+(alpha/beta version available at http://www.drchip.org/astronaut/vim/index.html#VIS)
 
