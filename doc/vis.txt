@@ -1,8 +1,8 @@
-*vis.txt*	The Visual Block Tool				Mar 29, 2013
+*vis.txt*	The Visual Block Tool				Jan 15, 2015
 
 Author:  Charles E. Campbell  <NdrchipO@ScampbellPfamily.AbizM>
 	  (remove NOSPAM from Campbell's email first)
-Copyright: (c) 2004-2013 by Charles E. Campbell	*vis-copyright*
+Copyright: (c) 2004-2015 by Charles E. Campbell	*vis-copyright*
            The VIM LICENSE applies to vis.vim and vis.txt
            (see |copyright|) except use "vis" instead of "Vim"
 	   No warranty, express or implied.  Use At-Your-Own-Risk.
@@ -38,10 +38,6 @@ Copyright: (c) 2004-2013 by Charles E. Campbell	*vis-copyright*
 	There must be a space before the '!' when invoking external shell
 	commands, eg. ':B !sort'. Otherwise an error is reported.
 
-	Doesn't work as one might expect with Vim's ve option.  That's
-	because ve=all ended up leaving unwanted blank columns, so the
-	solution chosen was to have the vis function turn ve off temporarily.
-
 	The script works by deleting the selected region into register "a.
 	The register "a itself is first saved and later restored.  The text is
 	then put at the end-of-file, modified by the user command, and then
@@ -71,7 +67,7 @@ Copyright: (c) 2004-2013 by Charles E. Campbell	*vis-copyright*
 	Visual block search provides two ways to get visual-selection
 	based searches.  Both these methods work well with :set hls
 	and searching may be repeated with the n or N commands.
-	
+
 	Using // and ?? after a visual selection (the // is only available
 	if you have g:vis_WantSlashSlash=1 in your <.vimrc> file):
 >
@@ -87,7 +83,7 @@ Copyright: (c) 2004-2013 by Charles E. Campbell	*vis-copyright*
 <
 	You may enter whatever pattern you want after the \&, and the
 	pattern search will be restricted to the requested region.
-	
+
 	The "S" command in visual mode:
 >
 		ex. select region via V, v, or ctrl-v
@@ -96,7 +92,7 @@ Copyright: (c) 2004-2013 by Charles E. Campbell	*vis-copyright*
 	    The ":S pattern" will appear as ":'<,'>S pattern".  This
 	    command will move the cursor to the next instance of the
 	    pattern, restricted to the visually selected block.
-	
+
 	An "R" command was contemplated, but I currently see no way to
 	get it to continue to search backwards with n and N commands.
 
@@ -167,6 +163,17 @@ Copyright: (c) 2004-2013 by Charles E. Campbell	*vis-copyright*
 ==============================================================================
 6. History						*vis-history* {{{1
 
+    v21 : Apr 01, 2013	- visual block and ragged right detection; there was
+			  a conflict between using ve= and ve=all
+			  (internally); one was good for ragged right and
+			  the other for smooth right visual block selections.
+			  I found a way to detect ragged right vs smooth right
+			  and so vis.vim now works properly in both
+			  situations.
+	  Apr 02, 2013	- The detection method above hung when on line 1.
+			  Fixed.
+	  Jan 15, 2015	- Small adjustment to prevent a leading space from
+	  		  being inserted.
     v20 : May 20, 2009	- cecutil bugfix
 	  May 19, 2010	- split into plugin/ and autoload/ for faster
 			  loading and on-demand loading.

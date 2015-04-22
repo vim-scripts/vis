@@ -44,8 +44,8 @@ set cpo&vim
 "  -range       : VisBlockCmd operates on the range itself
 "  -com=command : Ex command and arguments
 "  -nargs=+     : arguments may be supplied, up to any quantity
-com! -range -nargs=+ -com=command    B  silent <line1>,<line2>call vis#VisBlockCmd(<q-args>)
-com! -range -nargs=* -com=expression S  silent <line1>,<line2>call vis#VisBlockSearch(<q-args>)
+com! -range -nargs=+ -com=command    B  sil <line1>,<line2>call vis#VisBlockCmd(<q-args>)
+com! -range -nargs=* -com=expression S  sil <line1>,<line2>call vis#VisBlockSearch(<q-args>)
 
 " Suggested by Hari --
 if exists("g:vis_WantSlashSlash") && g:vis_WantSlashSlash

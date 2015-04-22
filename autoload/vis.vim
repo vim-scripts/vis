@@ -1,7 +1,7 @@
 " vis.vim:
 " Function:	Perform an Ex command on a visual highlighted block (CTRL-V).
-" Version:	20
-" Date:		Mar 29, 2013
+" Version:	21d	ASTRO-ONLY
+" Date:		Jan 15, 2015
 " GetLatestVimScripts: 1066 1 cecutil.vim
 " GetLatestVimScripts: 1195 1 :AutoInstall: vis.vim
 " Verse: For am I now seeking the favor of men, or of God? Or am I striving
@@ -19,8 +19,9 @@ if &cp || exists("g:loaded_vis")
   finish
 endif
 let s:keepcpo    = &cpo
-let g:loaded_vis = "v20"
+let g:loaded_vis = "v21d"
 set cpo&vim
+"DechoTabOn
 
 " ---------------------------------------------------------------------
 "  Support Functions: {{{1
@@ -38,11 +39,13 @@ fun! vis#VisBlockCmd(cmd) range
   call s:SaveUserSettings()
 
   if vmode == 'V'
+"   call Decho("handling V mode")
 "   call Decho("cmd<".a:cmd.">")
    exe "keepj '<,'>".a:cmd
 
   else " handle v and ctrl-v
-   " Initialize so begcol<endcol for non-v modes
+"   call Decho("handling v or ctrl-v mode")
+   " Initialize so (begcol < endcol) for non-v modes
    let begcol   = s:VirtcolM1("<")
    let endcol   = s:VirtcolM1(">")
    if vmode != 'v'
@@ -65,35 +68,37 @@ fun! vis#VisBlockCmd(cmd) range
    " Modify Selected Region:
    " =======================
    " 1. delete selected region into register "a
-"   call Decho("delete selected region into register a")
+"   call Decho("1. delete selected region into register a")
    sil! keepj norm! gv"ad
+"   call Decho("1. reg-A<".@a.">")
 
    " 2. put cut-out text at end-of-file
-"   call Decho("put cut-out text at end-of-file")
+"   call Decho("2. put cut-out text at end-of-file")
    keepj $
    keepj pu_
    let lastline= line("$")
-   sil! keepj norm! "ap
-"   call Decho("reg-A<".@a.">")
+   sil! keepj norm! "aP
+"   call Decho("2. reg-A<".@a.">")
 
    " 3. apply command to those lines
    let curline = line(".")
    ka
    keepj $
-"   call Decho("apply command<".a:cmd."> to those lines (curline=".line(".").")")
+"   call Decho("3. apply command<".a:cmd."> to those lines (curline=".line(".").")")
    exe "keepj ". curline.',$'.a:cmd
 
    " 4. visual-block select the modified text in those lines
-"   call Decho("visual-block select modified text at end-of-file")
+"   call Decho("4. visual-block select modified text at end-of-file")
    exe "keepj ".lastline
    exe "keepj norm! 0".vmode."G$\"ad"
+"   call Decho("4. reg-A<".@a.">")
 
    " 5. delete excess lines
-"   call Decho("delete excess lines")
+"   call Decho("5. delete excess lines")
    exe "sil! keepj ".lastline.',$d'
 
    " 6. put modified text back into file
-"   call Decho("put modifed text back into file (beginning=".begline.".".begcol.")")
+"   call Decho("6. put modifed text back into file (beginning=".begline.".".begcol.")")
    exe "keepj ".begline
    if begcol > 1
 	exe 'sil! keepj norm! '.begcol."\<bar>\"ap"
@@ -102,6 +107,7 @@ fun! vis#VisBlockCmd(cmd) range
    else
 	norm! 0"aP
    endif
+"   call Decho("6. reg-A<".@a.">")
 
    " 7. attempt to restore gv -- this is limited, it will
    " select the same size region in the same place as before,
@@ -116,6 +122,7 @@ fun! vis#VisBlockCmd(cmd) range
    exe 'sil keepj norm! '.begcol."\<bar>"
   endif
 
+  " restore a-priori condition
   call s:RestoreUserSettings()
   call RestoreWinPosn(curposn)
 
@@ -254,7 +261,29 @@ fun! s:SaveUserSettings()
   let s:keep_ve    = &ve
   let s:keep_ww    = &ww
   let s:keep_cedit = &cedit
-  set lz magic nofen noic nosol ve=all ww= fo=nroql2 cedit&
+  set lz magic nofen noic nosol ww= fo=nroql2 cedit&
+  " determine whether or not "ragged right" is in effect for the selected region
+  let raggedright= 0
+  norm! `>
+  let rrcol = col(".")
+  while line(".") >= line("'<")
+"   call Decho(".line#".line(".").": col(.)=".col('.')." rrcol=".rrcol)
+   if col(".") != rrcol
+    let raggedright = 1
+	break
+   endif
+   if line(".") == 1
+	break
+   endif
+   norm! k
+  endwhile
+  if raggedright
+"   call Decho("ragged right: set ve=all")
+   set ve=all
+  else
+"   call Decho("smooth right: set ve=")
+   set ve=
+  endif
 
   " Save any contents in register a
   let s:rega= @a
