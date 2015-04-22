@@ -2,8 +2,8 @@
 "               save/restore mark position
 "               save/restore selected user maps
 "  Author:	Charles E. Campbell
-"  Version:	18h	ASTRO-ONLY
-"  Date:	Oct 16, 2012
+"  Version:	18i	ASTRO-ONLY
+"  Date:	Oct 21, 2013
 "
 "  Saving Restoring Destroying Marks: {{{1
 "       call SaveMark(markname)       let savemark= SaveMark(markname)
@@ -34,7 +34,7 @@
 if &cp || exists("g:loaded_cecutil")
  finish
 endif
-let g:loaded_cecutil = "v18h"
+let g:loaded_cecutil = "v18i"
 let s:keepcpo        = &cpo
 set cpo&vim
 "DechoRemOn
